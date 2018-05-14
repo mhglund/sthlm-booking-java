@@ -23,9 +23,10 @@ public class BookedActivity {
 
     @Override
     public String toString() {
-        String bookedActivityInfo = "\n--------------\n Aktivitet: " + activity +
+        String bookedActivityInfo = "\n---------------------------------------" +
+            "\n Aktivitet: " + activity +
             "\n Datum: " + date +
-            "\n Starttid: " + startTime + " Sluttid: " + endTime +
+            "\n Starttid: " + startTime + "| Sluttid: " + endTime +
             "\n Förening: " + owner +
             "\n Hemsida: " + description +
             "\n Plats: " + place;

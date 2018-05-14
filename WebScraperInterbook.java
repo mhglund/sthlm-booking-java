@@ -26,8 +26,9 @@ public class WebScraperInterbook {
 
     public static void main(String[] args) {
 
-        
+        // Välj vilken anläggning som en vill söka på
         String searchedField = "Bagarmossens BP";
+        
         //String searchedActivity = "Fotboll";
 
 
@@ -36,7 +37,6 @@ public class WebScraperInterbook {
         
         WebClient client = new WebClient();
         client.getOptions().setCssEnabled(false);
-        //client.getOptions().setJavaScriptEnabled(false);
 
         try {
 
@@ -53,7 +53,7 @@ public class WebScraperInterbook {
             //DomElement myActivityInput = page.getElementById("drplFacility");
             //myActivityInput.setAttribute("value", searchedActivity);
 
-            // Väljer dagens datum (automatiskt)
+            // Dagens datum väljs automatiskt, därför är denna kod överflödig
             /*HtmlElement dateFrom = ((HtmlElement)
               page.getFirstByXPath(".//table[@id='calDate']//a[text()='16']")); 
               page = (HtmlPage) dateFrom.click(); */
@@ -76,12 +76,12 @@ public class WebScraperInterbook {
 
             //System.out.println(resultPage.asText());
 
-
             
             HtmlTable resultTable = resultPage.getHtmlElementById("dgResult");
             int rowNr = 0;
             for (HtmlTableRow row : resultTable.getRows()) {
                 if (rowNr == 0) {
+                    // Första raden är rubriker, och hoppas därför över
                     rowNr++;
                     continue;
                 } else {
@@ -91,8 +91,6 @@ public class WebScraperInterbook {
 
                     int cellNr = 0;
                     for (HtmlTableCell cell : row.getCells()) {
-                        
-                        
                         switch (cellNr) {
                         case 0:
                             aktivitet = cell.asText(); 
@@ -110,12 +108,9 @@ public class WebScraperInterbook {
                                 Arrays.stream(tid.split("-"))
                                 .map(military -> LocalTime.parse(military, DateTimeFormatter.ofPattern("HHmm")))
                                 .toArray(LocalTime[]::new);
-                            LocalTime start = times[0];
-                            LocalTime end = times[1];
-                            //System.out.println(start + " to " + end);
-                            startTid = start;
-                            slutTid = end;
-
+                            startTid = times[0];
+                            slutTid = times[1]; 
+                            
                             break;
                         case 3:
                             forening = cell.asText();
@@ -130,39 +125,24 @@ public class WebScraperInterbook {
 
                             break;
                         default:
-                            System.out.println("fel på tabell");
+                            System.out.println("Fel på cell/tabell?");
                             break;
                         } 
 
                         cellNr++;
                     }
-                    // SKAPA NY BOKAD AKTIVITET 
+                    // SKAPA NY BOKAD AKTIVITET och skriv ut
                     BookedActivity bokad = new BookedActivity(theDate, startTid, slutTid, forening, plats, hemsida, aktivitet);
                     System.out.println(bokad);
                 }
                 rowNr++;
             }
-            
-            /*List<HtmlElement> fields = (List<HtmlElement>) page.getByXPath("//tr[@class='vcard odd']");
-              if (fields.isEmpty()) {
-              System.out.println("Inga info funnen!");
-              } else {
-              for (HtmlElement htmlField : fields) {
-              HtmlElement fieldInfo = ((HtmlElement) htmlField.getFirstByXPath(".//div[@class='note']"));
 
-              Field field = new Field();
-              field.setInfo(fieldInfo.asText());
-
-              System.out.println(field.getInfo());
-              }
-              } */
-            
         } catch(Exception e) {
             e.printStackTrace();
             
         }
 
-        
         // Städa upp efter oss.
         // Undviker förvirrande felmeddelande vid körning
         client.closeAllWindows();
