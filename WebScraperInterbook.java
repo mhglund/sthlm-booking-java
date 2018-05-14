@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Arrays;
+import java.util.TreeSet;
+import java.util.Iterator;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
@@ -25,6 +27,9 @@ import com.gargoylesoftware.htmlunit.html.HtmlTableCell;
 public class WebScraperInterbook {
 
     public static void main(String[] args) {
+
+        // Set för att slippa dubletter
+        TreeSet<BookedActivity> allActivities = new TreeSet<>();
 
         // Välj vilken anläggning som en vill söka på
         String searchedField = "Bagarmossens BP";
@@ -85,10 +90,12 @@ public class WebScraperInterbook {
                     rowNr++;
                     continue;
                 } else {
+                    // Deklaration av BookedActivity's alla attribut
                     String aktivitet = "", forening = "", hemsida = "", plats = "";
                     LocalDate theDate = LocalDate.of(1900, Month.JANUARY, 1);
                     LocalTime startTid = LocalTime.of(00,00,00,00), slutTid = LocalTime.of(01,00,00,00);
 
+                    // Räknar celler för att datan ska hamna i rätt "kategori"/attribut
                     int cellNr = 0;
                     for (HtmlTableCell cell : row.getCells()) {
                         switch (cellNr) {
@@ -131,11 +138,24 @@ public class WebScraperInterbook {
 
                         cellNr++;
                     }
-                    // SKAPA NY BOKAD AKTIVITET och skriv ut
+                    // SKAPA NY BOKAD AKTIVITET
                     BookedActivity bokad = new BookedActivity(theDate, startTid, slutTid, forening, plats, hemsida, aktivitet);
-                    System.out.println(bokad);
+
+                    // Lägger till aktiviteten till TreeSet
+                    allActivities.add(bokad);
+                    
+                    //System.out.println(bokad);
                 }
                 rowNr++;
+            }
+            
+            Iterator iterator;
+            iterator = allActivities.iterator();
+
+            // Skriver ut alla aktiviteter
+            System.out.println("\n AKTIVITETER FÖR " + searchedField.toUpperCase());
+            while (iterator.hasNext()) {
+                System.out.println(iterator.next());
             }
 
         } catch(Exception e) {
